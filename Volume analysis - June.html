@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pear Protocol — From a 3-Window Trend to the 2-5 June Spike</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root{
+    --bg:#0A120E;--surface:#101A14;--surface2:#16231B;--line:rgba(255,255,255,0.09);
+    --text:#E9F0EA;--muted:#8FA095;--dim:#3A4A40;
+    --green:#6FD24A;--green2:#4F9A2E;--green-soft:rgba(111,210,74,0.13);
+    --cyan:#34D1C2;--cyan-soft:rgba(52,209,194,0.15);
+    --blue:#4A9BE0;--amber:#E0A33A;--red:#E8675A;--violet:#B095DA;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;overflow:hidden;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+  .deck{display:flex;height:100vh;width:100vw;transition:transform .5s cubic-bezier(.6,.05,.2,1);will-change:transform;}
+  .slide{min-width:100vw;height:100vh;display:flex;flex-direction:column;justify-content:center;padding:6vh 8vw;overflow-y:auto;}
+  .inner{width:100%;max-width:960px;margin:0 auto;}
+  .kicker{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:var(--green);margin-bottom:14px;}
+  h1{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(34px,6vw,64px);line-height:1.02;letter-spacing:-0.025em;}
+  h2{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:clamp(24px,3.4vw,38px);line-height:1.08;letter-spacing:-0.015em;margin-bottom:8px;}
+  p{font-size:clamp(14px,1.4vw,16.5px);line-height:1.6;color:#CFDAD1;margin-bottom:10px;}
+  .lead{font-size:clamp(17px,2vw,24px);line-height:1.5;color:var(--text);}
+  .lead b,.pos b{color:var(--green);font-weight:600;}
+  .muted{color:var(--muted);}
+  .meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px;}
+  .chip{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 13px;color:var(--muted);}
+  .chip b{color:var(--text);font-weight:600;}
+  .grid{display:grid;gap:12px;margin-top:8px;}
+  .g4{grid-template-columns:repeat(4,1fr);}
+  .g3{grid-template-columns:repeat(3,1fr);}
+  .g2{grid-template-columns:repeat(2,1fr);}
+  .g22{grid-template-columns:1fr 1fr;}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:15px 16px;}
+  .card .ct{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);}
+  .card .cv{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(20px,2.4vw,28px);margin-top:5px;letter-spacing:-0.01em;}
+  .card .cd{font-size:12px;color:var(--muted);margin-top:4px;}
+  .pos{color:var(--green);}.neg{color:var(--red);}.cyc{color:var(--cyan);}
+  .tbl{width:100%;border-collapse:collapse;font-size:clamp(11px,1.1vw,13px);margin-top:10px;}
+  .tbl th,.tbl td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--line);}
+  .tbl th:first-child,.tbl td:first-child{text-align:left;}
+  .tbl thead th{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);font-weight:500;border-bottom:1px solid rgba(255,255,255,0.2);}
+  .tbl td.num,.tbl td.addr{font-family:'JetBrains Mono',monospace;}
+  .tbl td.addr{font-size:10.5px;color:var(--muted);}
+  .tbl .rl{font-weight:600;color:var(--text);}
+  .tbl tr.tot td{border-top:1px solid rgba(255,255,255,0.2);font-weight:700;color:var(--text);}
+  .tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;font-weight:500;}
+  .tag.reg{background:var(--green-soft);color:var(--green);}
+  .tag.sp{background:var(--cyan-soft);color:var(--cyan);}
+  .tag.one{background:rgba(176,149,218,0.16);color:var(--violet);}
+  .callout{border-left:3px solid var(--green);background:var(--green-soft);border-radius:0 10px 10px 0;padding:13px 15px;margin-top:14px;font-size:13.5px;color:#D7E2D9;}
+  .callout.cyan{border-left-color:var(--cyan);background:var(--cyan-soft);}
+  .callout.amber{border-left-color:var(--amber);background:rgba(224,163,58,0.1);}
+  .callout b{color:var(--text);font-weight:600;}
+  .chartbox{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 14px 10px;margin-top:10px;}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-bottom:8px;}
+  .legend span{display:flex;align-items:center;gap:5px;}
+  .dot{width:9px;height:9px;border-radius:2px;display:inline-block;}
+  .ch{position:relative;width:100%;height:clamp(180px,36vh,320px);}
+  .ch.sm{height:clamp(130px,22vh,190px);}
+  .tl{position:relative;padding-left:24px;}
+  .tl:before{content:'';position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:linear-gradient(var(--green),var(--red));}
+  .tl .ev{position:relative;margin-bottom:16px;}
+  .tl .ev:last-child{margin-bottom:0;}
+  .tl .ev:before{content:'';position:absolute;left:-24px;top:3px;width:13px;height:13px;border-radius:50%;background:var(--bg);border:2px solid var(--green);}
+  .tl .ev.bad:before{border-color:var(--red);}
+  .tl .d{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--green);font-weight:500;}
+  .tl .ev.bad .d{color:var(--red);}
+  .tl .t{font-size:13.5px;color:#D7E2D9;margin-top:2px;line-height:1.5;}
+  .map{display:grid;grid-template-columns:auto 1fr;gap:0 14px;margin-top:12px;}
+  .map .a{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--green);padding:10px 0;border-bottom:1px solid var(--line);display:flex;align-items:center;font-size:12px;white-space:nowrap;}
+  .map .e{padding:10px 0;border-bottom:1px solid var(--line);color:#CFDAD1;font-size:13.5px;display:flex;align-items:center;}
+  .takes{list-style:none;margin-top:6px;counter-reset:t;}
+  .takes li{position:relative;padding:12px 0 12px 44px;border-bottom:1px solid var(--line);font-size:14px;color:#CFDAD1;}
+  .takes li:before{counter-increment:t;content:"0" counter(t);position:absolute;left:0;top:12px;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--green);font-size:13px;}
+  .takes b{color:var(--text);font-weight:600;}
+  .whaletable-wrap{max-height:58vh;overflow-y:auto;}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px;}
+  .col{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;}
+  .col h3{margin-top:0;font-size:11px;font-family:'JetBrains Mono',monospace;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;}
+  .col.good h3{color:var(--green);}
+  .col.bad h3{color:var(--cyan);}
+  .col ul{list-style:none;}
+  .col li{position:relative;padding:8px 0 8px 20px;font-size:13px;color:#CFDAD1;border-bottom:1px solid var(--line);line-height:1.5;}
+  .col li:last-child{border-bottom:none;}
+  .col li:before{position:absolute;left:0;top:8px;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;}
+  .col.good li:before{content:'+';color:var(--green);}
+  .col.bad li:before{content:'!';color:var(--cyan);}
+  .col li b{color:var(--text);font-weight:600;}
+  .cta{margin-top:8px;}
+  .cta-item{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:10px;}
+  .cta-item .h{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:17px;color:var(--text);margin-bottom:4px;}
+  .cta-item .h .num{font-family:'JetBrains Mono',monospace;color:var(--green);font-weight:700;margin-right:8px;}
+  .cta-item .why{font-size:12.5px;color:var(--muted);font-style:italic;margin-bottom:8px;}
+  .cta-item ul{list-style:none;}
+  .cta-item li{position:relative;padding:3px 0 3px 14px;font-size:13px;color:#CFDAD1;line-height:1.5;}
+  .cta-item li:before{content:'·';position:absolute;left:2px;color:var(--green);font-weight:700;}
+  .cta-section{margin-top:10px;}
+  .cta-section .sh{font-size:12px;color:var(--text);font-weight:600;margin:10px 0 4px;font-family:'JetBrains Mono',monospace;letter-spacing:0.04em;text-transform:uppercase;}
+  .nav{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:rgba(16,26,20,0.92);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:99px;padding:7px 13px;z-index:50;}
+  .nav button{background:none;border:none;color:var(--text);cursor:pointer;font-size:16px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background .2s;}
+  .nav button:hover{background:var(--green-soft);}
+  .nav button:disabled{opacity:0.3;cursor:default;}
+  .counter{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);min-width:44px;text-align:center;}
+  .dots{display:flex;gap:4px;flex-wrap:wrap;max-width:260px;justify-content:center;}
+  .dots i{width:5px;height:5px;border-radius:50%;background:var(--dim);cursor:pointer;transition:all .2s;}
+  .dots i.on{background:var(--green);width:14px;border-radius:3px;}
+  .progress{position:fixed;top:0;left:0;height:3px;background:var(--green);z-index:50;transition:width .5s cubic-bezier(.6,.05,.2,1);}
+  .hint{position:fixed;bottom:22px;right:22px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);z-index:50;}
+  @media(max-width:700px){
+    .slide{padding:6vh 5vw;}
+    .g4,.g3{grid-template-columns:1fr 1fr;}
+    .g2,.twocol,.g22{grid-template-columns:1fr;}
+    .hint{display:none;}
+    .tbl{font-size:10px;}.tbl th,.tbl td{padding:5px 4px;}
+    .tbl td.addr{font-size:8.5px;}
+  }
+</style>
+</head>
+<body>
+<div class="progress" id="progbar"></div>
+<div class="deck" id="deck">
+
+  <!-- 1 COVER -->
+  <section class="slide"><div class="inner">
+    <div class="kicker">Pear Protocol · Volume Intelligence</div>
+    <h1>From a 3-window trend<br>to one 4-day spike</h1>
+    <p class="lead muted" style="margin-top:16px;max-width:660px">Where Pear volume came from across May and June 2026, and what really drove the four days that ran above $8M.</p>
+    <div class="meta">
+      <div class="chip"><b>Periods</b> TF1 · TF2 · TF3</div>
+      <div class="chip"><b>Zoom-in</b> 2 to 5 Jun spike</div>
+      <div class="chip"><b>Scope</b> all channels</div>
+    </div>
+  </div></section>
+
+  <!-- 2 THREE WINDOWS -->
+  <section class="slide"><div class="inner">
+    <div class="kicker">A / The landscape</div>
+    <h2>Three windows, one clear trend</h2>
+    <p class="muted">Agent Pear's share of core volume (web + agent) climbed steadily across May and June.</p>
+    <div class="grid g3" style="margin-top:12px">
+      <div class="card"><div class="ct">TF1 · 13-26 May</div><div class="cv">3.1%</div><div class="cd">Agent share of core</div></div>
+      <div class="card"><div class="ct">TF2 · 28 May-8 Jun</div><div class="cv">15.6%</div><div class="cd">Agent share of core</div></div>
+      <div class="card"><div class="ct">TF3 · 10-16 Jun</div><div class="cv pos">43.8%</div><div class="cd">Agent share of core</div></div>
+    </div>
+    <div class="chartbox">
+      <div class="legend">
+        <span><span class="dot" style="background:var(--blue)"></span>Web app</span>
+        <span><span class="dot" style="background:var(--green)"></span>Agent Pear</span>
+        <span><span class="dot" style="background:var(--amber)"></span>Bullpen</span>
+        <span><span class="dot" style="background:var(--violet)"></span>API group</span>
+      </div>
+      <div class="ch sm"><canvas id="cComp"></canvas></div>
+    </div>
+  </div></section>
+
+  <!-- 3 ALL CHANNELS -->
+  <section class="slide"><div class="inner">
+    <div class="kicker">A / Every source of volume</div>
+    <h2>Web vs Agent is the story</h2>
+    <table class="tbl">
+      <thead><tr><th>Channel</th><th>TF1</th><th>TF2</th><th>TF3</th></tr></thead>
+      <tbody>
+        <tr><td class="rl">Web app</td><td class="num">$35.88M</td><td class="num">$59.68M</td><td class="num">$13.13M</td></tr>
+        <tr><td class="rl" style="color:var(--green)">Agent Pear</td><td class="num">$1.15M</td><td class="num pos">$11.04M</td><td class="num pos">$10.25M</td></tr>
+        <tr><td class="rl muted">Bullpen</td><td class="num muted">$182K</td><td class="num muted">$1.36M</td><td class="num muted">$456K</td></tr>
+        <tr><td class="rl muted">API group</td><td class="num muted">$1.12M</td><td class="num muted">$432K</td><td class="num muted">$99K</td></tr>
+      </tbody>
+    </table>
+    <div class="callout cyan"><b>Bullpen and API are minor and likely non-organic.</b> Together they never clear 4 percent of total volume, run on a handful of wallets, and both faded after TF2. The core narrative is Web vs Agent.</div>
+  </div></section>
+
+  <!-- 4 ZOOM-IN + ANSWER + CHART -->
+  <section class="slide"><div class="inner">
+    <div class="kicker">B / Zoom-in · The answer</div>
+    <h2>Four days drove the whole TF2 story</h2>
+    <p class="muted">TF2 averaged $3.8M a day. On 2 to 5 June it ran at $10.0M, peaking at $11.1M. The cause: <b style="color:var(--text)">existing whales trading much bigger into a violent crypto sell-off</b> — not new users. 96 percent of spike volume came from wallets already on Pear.</p>
+    <div class="grid g3" style="margin-top:10px">
+      <div class="card"><div class="ct">Daily volume</div><div class="cv">$10.0M</div><div class="cd">vs $3.8M · <span class="pos">+163%</span></div></div>
+      <div class="card"><div class="ct">Active traders / day</div><div class="cv">128</div><div class="cd">vs 85 · <span class="pos">+50%</span></div></div>
+      <div class="card"><div class="ct">Volume per trader</div><div class="cv">$78.9K</div><div class="cd">vs $44.7K · <span class="pos">+77%</span></div></div>
+    </div>
+    <div class="chartbox">
+      <div class="legend">
+        <span><span class="dot" style="background:var(--green)"></span>Spike days (above $8M)</span>
+        <span><span class="dot" style="background:var(--dim)"></span>Normal days</span>
+      </div>
+      <div class="ch sm"><canvas id="cZoom"></canvas></div>
+    </div>
+  </div></section>
+
+  <!-- 5 TRIGGER + PRICE (2-col) -->
+  <section class="slide"><div class="inner">
+    <div class="kicker">01 / What set it off</div>
+    <h2>A chain of market events, 1 to 5 June</h2>
+    <div class="grid g22" style="margin-top:14px;align-items:start;gap:20px">
+      <div class="tl">
+        <div class="ev"><div class="d">Mon 1 Jun</div><div class="t">Strategy (MSTR) discloses its first ever Bitcoin sale, breaking the never-sell narrative.</div></div>
+        <div class="ev bad"><div class="d">Tue 2 Jun</div><div class="t">Record spot BTC ETF outflows pass $3.2B. A Mt. Gox wallet moves ~$739M. BTC rolls over from $71K.</div></div>
+        <div class="ev bad"><div class="d">Wed 3 Jun</div><div class="t">BTC plunges to ~$65,700, down 12.3% on the week. ~$7B liquidated. ~$390B wiped off crypto market cap.</div></div>
+        <div class="ev"><div class="d">Thu–Fri</div><div class="t">Tentative stabilisation as leveraged positions clear out. Volume fades to baseline by 6 Jun.</div></div>
+      </div>
+      <div>
+        <div class="grid" style="grid-template-columns:1fr 1fr;gap:8px;margin-top:0">
+          <div class="card"><div class="ct">BTC, weekly</div><div class="cv neg" style="font-size:clamp(18px,2vw,24px)">-12.3%</div><div class="cd">low ~$65,700</div></div>
+          <div class="card"><div class="ct">ETH, weekly</div><div class="cv neg" style="font-size:clamp(18px,2vw,24px)">-11.1%</div><div class="cd">broke $1,900</div></div>
+          <div class="card"><div class="ct">Crypto mkt cap</div><div class="cv neg" style="font-size:clamp(18px,2vw,24px)">-$390B</div><div class="cd">in days</div></div>
+          <div class="card"><div class="ct">Liquidations</div><div class="cv" style="font-size:clamp(18px,2vw,24px)">~$7B</div><div class="cd">leveraged positions</div></div>
+          <div class="card"><div class="ct">SOL</div><div class="cv neg" style="font-size:clamp(18px,2vw,22px)">-9.0%</div></div>
+          <div class="card"><div class="ct">BNB</div><div class="cv neg" style="font-size:clamp(18px,2vw,22px)">-7.8%</div></div>
+          <div class="card" style="grid-column:1/-1;background:var(--green-soft);border-color:rgba(111,210,74,0.25)">
+            <div class="ct">HYPE, weekly</div>
+            <div class="cv pos" style="font-size:clamp(18px,2vw,24px)">+19.9%</div>
+            <div class="cd">lone top-10 gainer · our whales' second largest leg</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></section>
+
+  <!-- 6 MACRO -->
+  <section class="slide"><div class="inner">
+    <div class="kicker">02 / Macro backdrop</div>
+    <h2>Crypto fell while everything else ran</h2>
+    <p class="muted">The same days carried a loud macro and equity tape, which shows up directly in the tokenized assets traded on the bot.</p>
+    <div class="grid g22" style="margin-top:12px">
+      <div class="card"><div class="ct">Equities</div><div class="cv" style="font-size:20px">Record highs</div><div class="cd">AI trade, Philadelphia semis index up ~6% to a record</div></div>
+      <div class="card"><div class="ct">SpaceX</div><div class="cv" style="font-size:20px">$75B IPO talk</div><div class="cd">reported $135/share, fuels xyz:SPCX flow on Agent</div></div>
+      <div class="card"><div class="ct">Brent crude</div><div class="cv" style="font-size:20px">Up 3 days</div><div class="cd">stalled US-Iran talks, Middle East fighting</div></div>
+      <div class="card"><div class="ct">Risk-off rotation</div><div class="cv" style="font-size:20px">Gold, silver</div><div class="cd">safe-haven bid as crypto sold off</div></div>
+    </div>
+  </div></section>
+
+  <!-- 7 MAPPING -->
+  <section class="slide"><div class="inner">
+    <div class="kicker">03 / Connecting the dots</div>
+    <h2>On-chain assets map to the news</h2>
+    <p class="muted">What the whales traded lines up one to one with the day's headlines.</p>
+    <div class="map">
+      <div class="a">BTC</div><div class="e">MSTR sale, record ETF outflows, the $7B liquidation cascade</div>
+      <div class="a">HYPE</div><div class="e">Lone green major, +19.9% on the week on Hyperliquid</div>
+      <div class="a">ETH · SOL · BNB</div><div class="e">Dragged down 8 to 11 percent with the broad sell-off</div>
+      <div class="a">xyz:SPCX</div><div class="e">SpaceX $75B IPO at a reported $135 a share</div>
+      <div class="a">xyz:SP500</div><div class="e">US equities printing fresh record highs on the AI trade</div>
+      <div class="a">xyz:BRENTOIL</div><div class="e">Crude rising on stalled US-Iran ceasefire talks</div>
+    </div>
+  </div></section>
+
+  <!-- 8 DAILY -->
+  <section class="slide"><div class="inner">
+    <div class="kicker">04 / Daily view</div>
+    <h2>The four days in detail</h2>
+    <div class="chartbox">
+      <div class="legend">
+        <span><span class="dot" style="background:var(--green)"></span>Spike day volume</span>
+        <span><span class="dot" style="background:var(--dim)"></span>Normal day volume</span>
+        <span><span class="dot" style="background:var(--blue);border-radius:99px"></span>Active traders</span>
+        <span><span class="dot" style="background:var(--amber);border-radius:99px"></span>Vol per trader</span>
+      </div>
+      <div class="ch"><canvas id="cDaily"></canvas></div>
+    </div>
+    <div class="callout amber"><b>3 June ran 10,139 fills</b>, more than double a normal day — the signature of TWAP or algorithmic execution. <b>4 June</b> had one wallet at 51% of the day's volume.</div>
+  </div></section>
+
+  <!-- 9 CONC -->
+  <section class="slide"><div class="inner">
+    <div class="kicker">05 / Concentration</div>
+    <h2>A few wallets, and an algo fingerprint</h2>
+    <div class="chartbox">
+      <div class="legend">
+        <span><span class="dot" style="background:var(--green)"></span>Top wallet share</span>
+        <span><span class="dot" style="background:var(--blue)"></span>Top 5 share</span>
+        <span><span class="dot" style="background:var(--violet)"></span>Top 10 share</span>
+      </div>
+      <div class="ch"><canvas id="cConc"></canvas></div>
+    </div>
+    <div class="callout"><b>Top 5 wallets drove $26.8M, about 67% of all spike volume.</b> The biggest did $10.5M across 8,895 fills — core flow running hot, not a visitor. Otherwise concentration tracks the usual TF2 level.</div>
+  </div></section>
+
+  <!-- 10 NEW VS EXIST -->
+  <section class="slide"><div class="inner">
+    <div class="kicker">06 / New vs existing</div>
+    <h2>This was not user acquisition</h2>
+    <table class="tbl">
+      <thead><tr><th>Day</th><th>New traders</th><th>Total</th><th>New-trader vol</th><th>New share</th></tr></thead>
+      <tbody>
+        <tr><td class="rl">2 Jun</td><td class="num">17</td><td class="num">134</td><td class="num">$585K</td><td class="num">5.3%</td></tr>
+        <tr><td class="rl">3 Jun</td><td class="num">15</td><td class="num">121</td><td class="num">$791K</td><td class="num">7.4%</td></tr>
+        <tr><td class="rl">4 Jun</td><td class="num">12</td><td class="num">134</td><td class="num">$72K</td><td class="num">0.8%</td></tr>
+        <tr><td class="rl">5 Jun</td><td class="num">3</td><td class="num">121</td><td class="num">$65K</td><td class="num">3.0%</td></tr>
+        <tr class="tot"><td class="rl">Spike total</td><td class="num">47</td><td class="num"></td><td class="num">$1.5M</td><td class="num pos">3.8%</td></tr>
+      </tbody>
+    </table>
+    <p class="muted" style="margin-top:12px">About 96 percent of spike volume came from wallets that had already traded Pear before 2 June.</p>
+  </div></section>
+
+  <!-- 11 WHALE CHART -->
+  <section class="slide"><div class="inner">
+    <div class="kicker">07 / The whales</div>
+    <h2>Who actually did the trading</h2>
+    <div class="chartbox">
+      <div class="legend">
+        <span><span class="dot" style="background:var(--green)"></span>Established regular (10+ other days)</span>
+        <span><span class="dot" style="background:var(--cyan)"></span>Spike focused</span>
+        <span><span class="dot" style="background:var(--violet)"></span>One off</span>
+      </div>
+      <div class="ch"><canvas id="cWhale"></canvas></div>
+    </div>
+  </div></section>
+
+  <!-- 12 WHALE TABLE -->
+  <section class="slide"><div class="inner">
+    <div class="kicker">08 / Whale detail · internal</div>
+    <h2>Top 15 spike wallets</h2>
+    <div class="whaletable-wrap">
+    <table class="tbl">
+      <thead><tr><th>#</th><th>Address</th><th>Spike vol</th><th>Fills</th><th>Other days</th><th>Type</th></tr></thead>
+      <tbody id="whaleRows"></tbody>
+    </table>
+    </div>
+  </div></section>
+
+  <!-- 13 ASSET LIFT -->
+  <section class="slide"><div class="inner">
+    <div class="kicker">09 / Assets, market wide</div>
+    <h2>The whole book scaled up</h2>
+    <div class="chartbox">
+      <div class="legend">
+        <span><span class="dot" style="background:var(--green)"></span>Spike, per day</span>
+        <span><span class="dot" style="background:var(--dim)"></span>Normal, per day</span>
+      </div>
+      <div class="ch"><canvas id="cAsset"></canvas></div>
+    </div>
+    <div class="callout"><b>Broad, not one pair.</b> BTC, ETH, SOL, HYPE and ZEC all rose 2 to 4x together. Everything moving at once is the fingerprint of a market wide event, not a single chase.</div>
+  </div></section>
+
+  <!-- 14 WHALE ASSETS -->
+  <section class="slide"><div class="inner">
+    <div class="kicker">10 / Whale assets</div>
+    <h2>What the top whales traded</h2>
+    <table class="tbl">
+      <thead><tr><th>#</th><th>Address</th><th>Top assets on 2 to 5 Jun</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td class="addr">0x18e4…b062</td><td style="text-align:left">BTC $2.9M · HYPE $2.6M · SOL $2.2M · ETH $2.1M</td></tr>
+        <tr><td class="num">2</td><td class="addr">0x1544…0037</td><td style="text-align:left">BTC $2.8M · HYPE $0.6M · ETH $0.6M · WLD $0.5M</td></tr>
+        <tr><td class="num">3</td><td class="addr">0xc36f…9062</td><td style="text-align:left">BTC $2.1M · ETH $0.5M · SP500 $0.3M · HYPE $0.2M</td></tr>
+        <tr><td class="num">4</td><td class="addr">0x97bf…3e2f</td><td style="text-align:left">BTC $1.6M · ZEC $0.6M · HYPE $0.4M · ETH $0.2M</td></tr>
+        <tr><td class="num">5</td><td class="addr">0x8221…d403</td><td style="text-align:left">ZEC $0.7M · BTC $0.5M · NEAR $0.3M · XLM $0.1M</td></tr>
+        <tr><td class="num">6</td><td class="addr">0x6057…3879</td><td style="text-align:left">HYPE $0.1M · AAPL · XYZ100 · NVDA · ADA (equities)</td></tr>
+      </tbody>
+    </table>
+    <div class="callout"><b>BTC is the common leg</b> for nearly every whale, with HYPE second. Wallet 6 is a tokenized-equity trader, leaning on AAPL and NVDA right as stocks hit records.</div>
+  </div></section>
+
+  <!-- 15 PNL TABLE -->
+  <section class="slide"><div class="inner">
+    <div class="kicker">11 / PnL · trades closed 2 to 8 Jun</div>
+    <h2>Realised PnL of the spike wallets</h2>
+    <div class="whaletable-wrap">
+    <table class="tbl">
+      <thead><tr><th>#</th><th>Address</th><th>Closed</th><th>Win%</th><th>Realised</th><th>Net</th></tr></thead>
+      <tbody id="pnlRows"></tbody>
+    </table>
+    </div>
+    <p class="muted" style="margin-top:8px;font-size:11.5px">Closed trades only. Funding not captured. Open positions excluded. Net is after fees.</p>
+  </div></section>
+
+  <!-- 16 PNL INSIGHT -->
+  <section class="slide"><div class="inner">
+    <div class="kicker">12 / PnL insight</div>
+    <h2>Huge volume, thin profit</h2>
+    <div class="grid g3" style="margin-top:8px">
+      <div class="card"><div class="ct">Top 15 spike volume</div><div class="cv">$32.9M</div><div class="cd">82% of all spike volume</div></div>
+      <div class="card"><div class="ct">Aggregate net PnL</div><div class="cv pos">+$7.9K</div><div class="cd">essentially break-even</div></div>
+      <div class="card"><div class="ct">Pear fee revenue</div><div class="cv">~$24K</div><div class="cd">earned regardless of trader PnL</div></div>
+    </div>
+    <div class="chartbox">
+      <div class="legend"><span><span class="dot" style="background:var(--green)"></span>Net profit</span><span><span class="dot" style="background:var(--red)"></span>Net loss</span></div>
+      <div class="ch sm"><canvas id="cPnl"></canvas></div>
+    </div>
+    <div class="callout"><b>Volatility churned, it did not enrich.</b> The algo whale ground $10.5M into a $19K net gain (0.18% margin). Pear earned ~$18K from these 15 wallets either way.</div>
+  </div></section>
+
+  <!-- 17 RETENTION -->
+  <section class="slide"><div class="inner">
+    <div class="kicker">13 / Does the spike volume stay?</div>
+    <h2>17 days later, the answer is yes</h2>
+    <p class="muted">Same wallets from 2 to 5 Jun, tracked across the 17 days that followed (6 to 22 Jun).</p>
+    <table class="tbl">
+      <thead><tr><th>Tier</th><th>Wallets</th><th>Retained</th><th>Retention</th><th>Spike vol</th><th>Post vol · 17d</th></tr></thead>
+      <tbody>
+        <tr><td class="rl" style="color:var(--green)">Whale ($1M+)</td><td class="num">5</td><td class="num">5</td><td class="num pos">100%</td><td class="num">$26.8M</td><td class="num pos">$21.6M</td></tr>
+        <tr><td class="rl">Mid ($100K–1M)</td><td class="num">34</td><td class="num">32</td><td class="num pos">94%</td><td class="num">$10.5M</td><td class="num">$12.8M</td></tr>
+        <tr><td class="rl muted">Small (&lt;$100K)</td><td class="num">178</td><td class="num">121</td><td class="num">68%</td><td class="num">$2.8M</td><td class="num">$5.2M</td></tr>
+      </tbody>
+    </table>
+    <div class="grid g3" style="margin-top:12px">
+      <div class="card"><div class="ct">Take rate, all channels</div><div class="cv">6.00 bps</div><div class="cd">flat · spike and normal days</div></div>
+      <div class="card"><div class="ct">Liquidations in Pear vol</div><div class="cv">~0%</div><div class="cd">traders worked the move, not victims</div></div>
+      <div class="card"><div class="ct">Mid-tier post vol</div><div class="cv pos">$12.8M</div><div class="cd">higher than during the spike itself</div></div>
+    </div>
+  </div></section>
+
+  <!-- 18 GOOD VS GAP -->
+  <section class="slide"><div class="inner">
+    <div class="kicker">14 / Good news and the gap</div>
+    <h2>What the spike validated, and what it exposed</h2>
+    <div class="twocol">
+      <div class="col good">
+        <h3>Good news</h3>
+        <ul>
+          <li><b>Whales are sticky.</b> 100% of $1M+ wallets stayed active, generating $21.6M more in the 17 days that followed.</li>
+          <li><b>The volume is real.</b> Monetised at the full 6 bps take rate across spike and normal days.</li>
+          <li><b>Pear traders won the move.</b> ~0% liquidation share. They traded the volatility, not got worked by it.</li>
+          <li><b>Mid-tier sticks too.</b> 94% retention, with post-spike volume actually higher than during the spike.</li>
+        </ul>
+      </div>
+      <div class="col bad">
+        <h3>To improve</h3>
+        <ul>
+          <li><b>67% in 5 wallets.</b> Real concentration risk. If one or two rotate out, a meaningful chunk of volume follows.</li>
+          <li><b>Small tier churns at 32%.</b> The acquisition funnel is leakier than the whale tier.</li>
+          <li><b>Rebate exists but is manual.</b> A live incentive lever that doesn't show in surface metrics. Worth considering whether to lean on it more explicitly.</li>
+          <li><b>Auto-rebalance still idle.</b> Volume engine sitting at zero today. Launching well removes some dependency on event-driven days.</li>
+        </ul>
+      </div>
+    </div>
+  </div></section>
+
+  <!-- 19 TAKEAWAYS -->
+  <section class="slide"><div class="inner">
+    <div class="kicker">15 / Takeaways</div>
+    <h2>What to take away</h2>
+    <ol class="takes">
+      <li><b>It was a volatility event, not growth.</b> Existing whales, broad asset participation, negligible new-user volume. Do not bank it as a new baseline.</li>
+      <li><b>Bigger trades beat more traders.</b> Size per trader rose 77% versus 50% more participants. Depth scales with whale conviction.</li>
+      <li><b>The volume stuck.</b> 100% whale retention 17 days out, monetised at full take rate, ~0% liquidations. The spike was earned and kept.</li>
+      <li><b>Concentrated in 5 wallets.</b> 67% of spike volume. Knowing and keeping them matters more than headcount growth.</li>
+      <li><b>Auto-rebalance is dormant volume.</b> A controllable lever sitting idle. Once live, it adds a baseline that doesn't need a crash.</li>
+    </ol>
+  </div></section>
+
+  <!-- 20 CTA -->
+  <section class="slide"><div class="inner">
+    <div class="kicker">16 / What we can control</div>
+    <h2>Levers worth considering</h2>
+    <p class="muted" style="margin-bottom:6px">We can't manufacture volatility. We can decide who shows up when it arrives, and we can stage volume around catalysts that are already on the calendar.</p>
+    <div class="cta">
+      <div class="cta-item">
+        <div class="h"><span class="num">A</span>Own the top wallets</div>
+        <div class="why">5 wallets = 67% of spike volume, 100% retained post-spike. The most valuable asset already exists.</div>
+        <ul>
+          <li>Identify the top ~20 wallets and understand why they trade Pear</li>
+          <li>Direct line for incidents and feature requests — treat them as design partners</li>
+          <li>Manual rebate system already in place — worth reviewing whether to surface it more visibly to qualifying wallets</li>
+          <li>Open question: does this top-5 composition hold in 3 months, or is a pipeline needed?</li>
+        </ul>
+      </div>
+      <div class="cta-item">
+        <div class="h"><span class="num">B</span>Calendar campaigns around volatility catalysts</div>
+        <div class="why">Volatility is the trigger. Many catalysts are pre-scheduled. Timing is the lever we control.</div>
+        <div class="cta-section">
+          <div class="sh">Catalysts already on the calendar</div>
+          <ul>
+            <li>FOMC (8×/year, dates published) · CPI · PCE · NFP (monthly Fridays)</li>
+            <li>Crypto options expiry (Deribit, end-of-quarter especially)</li>
+            <li>Token unlocks · big-cap earnings (for RWA equity pairs) · halving windows</li>
+          </ul>
+        </div>
+        <div class="cta-section">
+          <div class="sh">Campaign formats to overlay</div>
+          <ul>
+            <li>24–48h volume sprint around the event, tiered prize pool (top 10 / top 50 / all qualifiers)</li>
+            <li>Pair-specific bonus matched to catalyst (FOMC → BTC/ETH, NFP → USD pairs, earnings → equity pairs)</li>
+            <li>Proactive Agent Pear nudge: "FOMC in 2 hours — set up your pair"</li>
+          </ul>
+        </div>
+        <div class="cta-section">
+          <div class="sh">T&amp;C sketch (for discussion)</div>
+          <ul>
+            <li>Eligibility: PEARPROTOCOLUI or AGENTPEAR only — keeps it organic, excludes API/Bullpen</li>
+            <li>Window: opening and closing times fixed in UTC, pinned in announcement</li>
+            <li>Minimum: e.g. $10K notional to qualify, filters dust</li>
+            <li>Anti-gaming: exclude self-cross wash trades, minimum hold time or notional × time-held weighting</li>
+          </ul>
+        </div>
+        <div class="cta-section">
+          <div class="sh">Developer needs (rough)</div>
+          <ul>
+            <li>Real-time leaderboard per campaign (fills + cloid filter)</li>
+            <li>Pre-event push via Agent Pear (cron trigger keyed to calendar)</li>
+            <li>Snapshot + automated payout at end-of-window</li>
+            <li>Post-campaign lift dashboard — measures each event vs prior baseline so we learn what to repeat</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div></section>
+
+  <!-- 21 CLOSING -->
+  <section class="slide"><div class="inner">
+    <div class="kicker">Sources and caveats</div>
+    <h2>Notes</h2>
+    <p class="muted">On-chain figures from Pear Protocol fills, executed Pear volume only (cloid prefix 0x50454152), core clients PEARPROTOCOLUI and AGENTPEAR. Volume is price × size in USD. Spike = 2 to 5 Jun, normal = the other 8 TF2 days, retention window = 6 to 22 Jun. UTC boundaries throughout.</p>
+    <p class="muted">Market and macro context from public reporting around 1 to 3 June 2026 (CoinDesk, CNBC, Statista). PnL covers trades closed 2 to 8 Jun, excludes still-open positions; funding column returned 0 and may not be fully captured. Take rate computed from builder_fee_paid divided by notional.</p>
+    <p class="muted" style="margin-top:18px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim)">Internal review · full addresses shown · Pear Protocol</p>
+  </div></section>
+
+</div>
+
+<div class="nav">
+  <button id="prev">‹</button>
+  <div class="dots" id="dots"></div>
+  <span class="counter" id="counter"></span>
+  <button id="next">›</button>
+</div>
+<div class="hint">← → to navigate</div>
+
+<script>
+const deck=document.getElementById('deck');
+const slides=[...document.querySelectorAll('.slide')];
+const N=slides.length;
+let i=0;
+const dotsWrap=document.getElementById('dots');
+slides.forEach((_,k)=>{const d=document.createElement('i');d.onclick=()=>go(k);dotsWrap.appendChild(d);});
+const dots=[...dotsWrap.children];
+const prog=document.getElementById('progbar');
+function go(n){
+  i=Math.max(0,Math.min(N-1,n));
+  deck.style.transform='translateX(-'+(i*100)+'vw)';
+  dots.forEach((d,k)=>d.classList.toggle('on',k===i));
+  document.getElementById('counter').textContent=(i+1)+' / '+N;
+  prog.style.width=((i+1)/N*100)+'%';
+  document.getElementById('prev').disabled=i===0;
+  document.getElementById('next').disabled=i===N-1;
+}
+document.getElementById('prev').onclick=()=>go(i-1);
+document.getElementById('next').onclick=()=>go(i+1);
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(i+1);}
+  if(e.key==='ArrowLeft'){e.preventDefault();go(i-1);}
+});
+let sx=0;
+deck.addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});
+deck.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)go(i+(dx<0?1:-1));},{passive:true});
+go(0);
+
+// ---- DATA ----
+const whales=[
+['0x18e41bb2205e0d87ce94474411d49c035c15b062',10452659,8895,17,2837,55,25020,19099],
+['0x154411ab8acea5322120b61dce3b2376746b0037',7005104,2262,3,52,46,12695,9005],
+['0xc36f2fe0f39a46a45c89bbf92d2531f7d1389062',4535167,481,13,114,32,-5615,-7964],
+['0x97bff6e46d556ad271f2b1d048c9129cdcf03e2f',3174426,128,18,170,26,-5153,-6781],
+['0x82211560d304a632820674b9fc98ab81e4a7d403',1617964,49,14,25,40,-6671,-7638],
+['0x605729aed0e6ec50f04a2750a7682ff3698f3879',998692,1003,1,17,29,12878,12481],
+['0x8be269d1f0731e7c2990558d2af0d8a4a99d0ec4',792030,50,18,33,42,-6384,-6902],
+['0xc4b4d58b7c5838efe8034b28c5eb6b64e33cc189',767349,515,18,163,47,-2667,-3173],
+['0x19f471c40cd9270ceea76cfdeaa85370d78157ee',654117,95,1,5,80,-168,-561],
+['0xbe504fbfc1ad30708a79f5821ed5ea6eef1a877b',650212,6,0,12,33,138,-102],
+['0x3d301d6b89d6c8e168d21b980a69269c424c63df',598872,40,1,9,44,-334,-608],
+['0xda04ffc95de4aed9fd68069ed6674a4f238ac502',417301,198,22,46,52,847,556],
+['0x54056446ca31f2d3c9f05012ec927357aeac9e64',415045,18,1,7,57,-1998,-2271],
+['0x54e5e90a6679314e8339bb1ed74beab5ca19324a',414117,743,20,51,53,1579,1250],
+['0x87673aecb55964c3ebb99787128267a9dad76cd1',385913,805,10,52,38,1762,1542]];
+
+const fUSD=v=>'$'+(Math.abs(v)>=1e6?(v/1e6).toFixed(1)+'M':Math.abs(v)>=1e3?(v/1e3).toFixed(0)+'K':v.toFixed(0));
+const fS=v=>(v>=0?'+':'')+' $'+Math.abs(Math.round(v)).toLocaleString();
+function wtype(o){return o>=10?['REGULAR','reg']:o>=1?['SPIKE FOCUSED','sp']:['ONE OFF','one'];}
+
+document.getElementById('whaleRows').innerHTML=whales.map((w,k)=>{const t=wtype(w[3]);
+  return '<tr><td class="num">'+(k+1)+'</td><td class="addr">'+w[0]+'</td><td class="num">'+fUSD(w[1])+'</td><td class="num">'+w[2].toLocaleString()+'</td><td class="num">'+w[3]+'</td><td><span class="tag '+t[1]+'">'+t[0]+'</span></td></tr>';}).join('');
+
+document.getElementById('pnlRows').innerHTML=whales.map((w,k)=>
+  '<tr><td class="num">'+(k+1)+'</td><td class="addr">'+w[0].slice(0,6)+'…'+w[0].slice(-4)+'</td><td class="num">'+w[4].toLocaleString()+'</td><td class="num">'+w[5]+'%</td><td class="num '+(w[6]>=0?'pos':'neg')+'">'+fS(w[6])+'</td><td class="num '+(w[7]>=0?'pos':'neg')+'">'+fS(w[7])+'</td></tr>').join('');
+
+// ---- CHARTS ----
+const G='#6FD24A',DIM='#3A4A40',BL='#4A9BE0',AM='#E0A33A',VI='#B095DA',RE='#E8675A',CY='#34D1C2';
+const grid='rgba(255,255,255,0.07)',tick='#8FA095';
+const bf={family:'JetBrains Mono',size:10};
+Chart.defaults.color=tick;
+
+// Slide 2: composition
+new Chart(document.getElementById('cComp'),{type:'bar',
+  data:{labels:['TF1 · 13-26 May','TF2 · 28 May-8 Jun','TF3 · 10-16 Jun'],datasets:[
+    {label:'Web',data:[93.6,82.3,54.9],backgroundColor:BL,stack:'s'},
+    {label:'Agent',data:[3.0,15.2,42.8],backgroundColor:G,stack:'s'},
+    {label:'Bullpen',data:[0.5,1.9,1.9],backgroundColor:AM,stack:'s'},
+    {label:'API',data:[2.9,0.6,0.4],backgroundColor:VI,stack:'s'}]},
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+c.parsed.x.toFixed(1)+'%'}}},
+    scales:{x:{stacked:true,max:100,grid:{color:grid},ticks:{font:bf,callback:v=>v+'%'}},
+      y:{stacked:true,grid:{display:false},ticks:{font:bf}}}}});
+
+// Slide 4: zoom mini chart
+const d12l=['28','29','30','31','Jun 1','2','3','4','5','6','7','8'];
+const d12v=[5243530,5490710,3903081,4407169,5998395,9796155,11124895,10620432,8622151,2120055,1296707,2095038];
+const dspk=[0,0,0,0,0,1,1,1,1,0,0,0];
+new Chart(document.getElementById('cZoom'),{type:'bar',
+  data:{labels:d12l,datasets:[{data:d12v,backgroundColor:dspk.map(s=>s?G:DIM),borderRadius:3}]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fUSD(c.parsed.y)}}},
+    scales:{x:{grid:{display:false},ticks:{font:bf}},y:{grid:{color:grid},ticks:{font:bf,callback:v=>fUSD(v)}}}}});
+
+// Slide 8: daily with lines
+const ddau=[94,98,72,67,107,134,121,134,121,71,74,95];
+const dvpt=[55782,56028,54209,65779,56060,73106,91941,79257,71257,29860,17523,22053];
+new Chart(document.getElementById('cDaily'),{data:{labels:d12l,datasets:[
+  {type:'bar',label:'Volume',data:d12v,backgroundColor:dspk.map(s=>s?G:DIM),borderRadius:3,yAxisID:'y',order:3},
+  {type:'line',label:'Traders',data:ddau,borderColor:BL,backgroundColor:BL,borderWidth:2,pointRadius:2,tension:.3,yAxisID:'y1',order:1},
+  {type:'line',label:'Vol/trader',data:dvpt,borderColor:AM,backgroundColor:AM,borderWidth:2,borderDash:[5,3],pointRadius:2,tension:.3,yAxisID:'y2',order:2}]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label==='Volume'?' '+fUSD(c.parsed.y):c.dataset.label==='Traders'?' '+c.parsed.y+' traders':' '+fUSD(c.parsed.y)+'/trader'}}},
+    scales:{x:{grid:{display:false},ticks:{font:bf}},y:{grid:{color:grid},ticks:{font:bf,callback:v=>fUSD(v)}},
+      y1:{position:'right',min:0,max:160,grid:{display:false},ticks:{font:bf,color:BL}},y2:{display:false,min:0,max:110000}}}});
+
+// Slide 9: concentration
+const t1=[32.5,41.6,52.5,45.9,37.7,19.6,24.4,51.3,34.8,14.0,10.7,17.5];
+const t5=[60.6,71.6,80.8,79.0,75.4,68.8,67.0,71.6,74.9,49.7,42.2,52.7];
+const t10=[76.5,82.8,91.9,92.3,83.5,80.1,82.2,83.1,84.9,74.4,70.3,70.0];
+new Chart(document.getElementById('cConc'),{data:{labels:d12l,datasets:[
+  {type:'line',label:'Top 1',data:t1,borderColor:G,backgroundColor:G,borderWidth:2,pointRadius:2,tension:.3},
+  {type:'line',label:'Top 5',data:t5,borderColor:BL,backgroundColor:BL,borderWidth:2,pointRadius:2,tension:.3},
+  {type:'line',label:'Top 10',data:t10,borderColor:VI,backgroundColor:VI,borderWidth:2,pointRadius:2,tension:.3}]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+c.parsed.y+'%'}}},
+    scales:{x:{grid:{display:false},ticks:{font:bf}},y:{min:0,max:100,grid:{color:grid},ticks:{font:bf,callback:v=>v+'%'}}}}});
+
+// Slide 11: whale chart
+new Chart(document.getElementById('cWhale'),{type:'bar',
+  data:{labels:whales.map(w=>w[0].slice(0,6)+'…'+w[0].slice(-4)),
+    datasets:[{data:whales.map(w=>w[1]),backgroundColor:whales.map(w=>w[3]>=10?G:w[3]>=1?CY:VI),borderRadius:3}]},
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fUSD(c.parsed.x)+' · '+whales[c.dataIndex][3]+' other days'}}},
+    scales:{x:{grid:{color:grid},ticks:{font:bf,callback:v=>fUSD(v)}},y:{grid:{display:false},ticks:{font:{family:'JetBrains Mono',size:9}}}}}});
+
+// Slide 13: asset lift
+const al=['BTC','HYPE','ETH','SOL','ZEC','NEAR','WLD','SP500','BNB','ADA'];
+const asp=[3006259,1471345,1230127,866215,697347,390986,209862,113146,89804,77209];
+const anm=[942967,630048,448750,237725,268176,259176,51887,35719,20675,17384];
+new Chart(document.getElementById('cAsset'),{type:'bar',
+  data:{labels:al,datasets:[
+    {label:'Spike/day',data:asp,backgroundColor:G,borderRadius:3},
+    {label:'Normal/day',data:anm,backgroundColor:DIM,borderRadius:3}]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+fUSD(c.parsed.y)}}},
+    scales:{x:{grid:{display:false},ticks:{font:bf}},y:{grid:{color:grid},ticks:{font:bf,callback:v=>fUSD(v)}}}}});
+
+// Slide 16: PnL
+new Chart(document.getElementById('cPnl'),{type:'bar',
+  data:{labels:whales.map(w=>w[0].slice(0,6)+'…'+w[0].slice(-4)),
+    datasets:[{data:whales.map(w=>w[7]),backgroundColor:whales.map(w=>w[7]>=0?G:RE),borderRadius:3}]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' net '+fS(c.parsed.y)}}},
+    scales:{x:{grid:{display:false},ticks:{font:{family:'JetBrains Mono',size:8},maxRotation:55,minRotation:55}},
+      y:{grid:{color:grid},ticks:{font:bf,callback:v=>fS(v)}}}}});
+</script>
+</body>
+</html>
